@@ -96,6 +96,30 @@ cd php-social-messenger
 - Open your browser and go to:  
   **`http://localhost/php-social-messenger`**  
 
+### 6️⃣ Deploy to Heroku ☁️
+1. Install the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) and login:  
+   ```bash
+   heroku login
+   ```
+2. Create your Heroku app from the project root:  
+   ```bash
+   heroku create your-app-name
+   ```
+3. Attach a MySQL add-on (for example JawsDB):  
+   ```bash
+   heroku addons:create jawsdb:kitefin
+   ```
+4. Import your local schema into the provisioned database (copy credentials from `heroku config`):  
+   ```bash
+   heroku config
+   ```
+5. Deploy:  
+   ```bash
+   git push heroku main
+   ```
+
+> The app automatically reads Heroku database variables (`DATABASE_URL`, `JAWSDB_URL`, `CLEARDB_DATABASE_URL`) and falls back to local `DB_*` values when running outside Heroku.
+
 ## 🖥 Technologies Used
 ![HTML](https://img.shields.io/badge/HTML-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS](https://img.shields.io/badge/CSS-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white)
