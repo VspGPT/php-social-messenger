@@ -1,8 +1,44 @@
 <?php
-define("DB_SERVER", "localhost");
-define("DB_USERNAME", "root");
-define("DB_PASSWORD", "");
-define("DB_NAME", "social_messenger_db");
+
+function envValue(string $key, ?string $default = null): ?string
+{
+    $value = getenv($key);
+    return $value === false ? $default : $value;
+}
+
+function getDatabaseConfig(): array
+{
+    $databaseUrl = envValue('DATABASE_URL') ?: envValue('JAWSDB_URL') ?: envValue('CLEARDB_DATABASE_URL');
+
+    if ($databaseUrl) {
+        $parts = parse_url($databaseUrl);
+
+        if ($parts !== false) {
+            return [
+                'host' => $parts['host'] ?? 'localhost',
+                'user' => $parts['user'] ?? 'root',
+                'pass' => $parts['pass'] ?? '',
+                'name' => isset($parts['path']) ? ltrim($parts['path'], '/') : 'social_messenger_db',
+                'port' => isset($parts['port']) ? (int) $parts['port'] : 3306
+            ];
+        }
+    }
+
+    return [
+        'host' => envValue('DB_SERVER', 'localhost'),
+        'user' => envValue('DB_USERNAME', 'root'),
+        'pass' => envValue('DB_PASSWORD', ''),
+        'name' => envValue('DB_NAME', 'social_messenger_db'),
+        'port' => (int) envValue('DB_PORT', '3306')
+    ];
+}
+
+$dbConfig = getDatabaseConfig();
+define("DB_SERVER", $dbConfig['host']);
+define("DB_USERNAME", $dbConfig['user']);
+define("DB_PASSWORD", $dbConfig['pass']);
+define("DB_NAME", $dbConfig['name']);
+define("DB_PORT", $dbConfig['port']);
 
 class Database
 {
@@ -10,7 +46,7 @@ class Database
 
     public function __construct()
     {
-        $this->conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+        $this->conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME, DB_PORT);
 
         if ($this->conn->connect_error) {
             die("Database connection error: " . $this->conn->connect_error);
